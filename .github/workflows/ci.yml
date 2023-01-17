@@ -1,11 +1,9 @@
-name: Java CI
-
+name: build
 on: [push]
-
 jobs:
-  build:
+  build-app:
     runs-on: ubuntu-latest
-
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
@@ -13,12 +11,17 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-          cache: maven
-      - name: Validate, build and run tests
+      - name: Build with Maven
         run: mvn --batch-mode --update-snapshots verify
       - name: Upload jar
         uses: actions/upload-artifact@v2
         with:
           name: App
           path: target/*.jar
+          if-no-files-found: error
+      - name: Upload javadoc
+        uses: actions/upload-artifact@v2
+        with:
+          name: Documentation
+          path: target/site/
           if-no-files-found: error
